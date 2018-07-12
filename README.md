@@ -14,5 +14,5 @@ from polytrope import Polytrope
 
 P = Polytrope(1.5)
 
-print(P.xi_1, P.m, P.i, P.Omega))
+print(P.xi_1, P.m, P.i, P.Omega)
 ```
