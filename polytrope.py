@@ -33,11 +33,12 @@ class Polytrope(object):
     """
     def __init__(self, n):
         self.n = n
-
+        # to ensure the calculation is not done multiple times
         self._calculation = False
     
     @property
     def xi_1(self):
+        """Dimensionless radius."""
         if not self._calculation:
             self._calculate()
         xi_1 = self._xis[-1]
@@ -45,6 +46,7 @@ class Polytrope(object):
     
     @property
     def m(self):
+        """Dimensionless mass."""
         if not self._calculation:
             self._calculate()
         m = 4*np.pi * self.xi_1**(-1) * np.abs(self._dtheta_dxis[-1])
@@ -52,6 +54,7 @@ class Polytrope(object):
     
     @property
     def i(self):
+        """Dimensionless moment of inertia."""
         if not self._calculation:
             self._calculate()
         i = ((8*np.pi/3) * simps(self._thetas**n*self._xis**4, self._xis) 
@@ -60,6 +63,7 @@ class Polytrope(object):
     
     @property
     def Omega(self):
+        """Dimensionless potential."""
         if not self._calculation:
             self._calculate()
         Omega = (-16*np.pi**2 
@@ -70,21 +74,25 @@ class Polytrope(object):
         return Omega
 
     def _calculate(self):
+        """Run integration."""
         self._xis, self._thetas, self._dtheta_dxis = self._integrate()
         self._calculation = True
 
     def _LaneEmden(self, xi, y):
+        """Defining the Lane-Emden equation."""
         theta, dtheta_dxi = y
         dy_dxi = np.array([dtheta_dxi, - theta**self.n - 2*dtheta_dxi/xi])
         return dy_dxi
     
     def _start(self, xi):
+        """Starting point for integration."""
         theta = 1 - xi**2/6
         dtheta_dxi = - xi/3
         y = np.array([theta, dtheta_dxi])
         return y
     
     def _integrate(self):
+        """Integrate the Lane-Emden equation using `ode`."""
         xi_0 = 1e-6
         y_0 = self._start(xi_0)
 
@@ -101,6 +109,7 @@ class Polytrope(object):
         return np.array(xis), np.array(thetas), np.array(dtheta_dxis)
     
     def plot_temperature(self):
+        """Plot the temperature against radius."""
         plt.figure()
         plt.plot(self._xis/self.xi_1, self._thetas)
         plt.xlabel(r'Dimensionless radius, $\xi / \xi_1$')
@@ -108,6 +117,7 @@ class Polytrope(object):
         plt.show()
     
     def plot_density(self):
+        """Plot the density against radius."""
         plt.figure()
         plt.plot(self._xis/self.xi_1, self._thetas**self.n)
         plt.xlabel(r'Dimensionless radius, $\xi / \xi_1$')
